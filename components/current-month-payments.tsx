@@ -48,7 +48,7 @@ export function CurrentMonthPayments({ payments, config, onUpdate }: CurrentMont
     .filter((p) => p.status === "paid" || p.status === "confirmed")
     .reduce((sum, p) => sum + p.amount, 0)
 
-  const totalPlan = config?.total_monthly_cost || 0
+  const totalPlan = config?.total_cost || 0
   const remaining = totalPlan - totalPaid
   const payingMembers = config?.paying_members || config?.number_of_members || 0
   const paidCount = currentMonthPayments.filter((p) => p.status === "paid" || p.status === "confirmed").length

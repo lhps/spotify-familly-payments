@@ -14,7 +14,7 @@ interface Payment {
   receipt_url: string | null
   status: string
   notes: string | null
-  payment_month: string
+  payment_month?: string
 }
 
 interface PastMonthsHistoryProps {
@@ -25,12 +25,15 @@ export function PastMonthsHistory({ payments }: PastMonthsHistoryProps) {
   const [expandedMonth, setExpandedMonth] = useState<string | null>(null)
 
   const currentMonth = new Date().toISOString().slice(0, 7)
-  const pastPayments = payments.filter((p) => p.payment_month && p.payment_month < currentMonth)
+  const pastPayments = payments.filter((p) => {
+    const paymentMonth = p.payment_month || p.payment_date?.slice(0, 7)
+    return paymentMonth && paymentMonth < currentMonth
+  })
 
   // Group by month
   const paymentsByMonth = pastPayments.reduce(
     (acc, payment) => {
-      const month = payment.payment_month || "unknown"
+      const month = payment.payment_month || payment.payment_date?.slice(0, 7) || "unknown"
       if (!acc[month]) acc[month] = []
       acc[month].push(payment)
       return acc
