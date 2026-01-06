@@ -7,8 +7,7 @@ export default async function Home() {
   // Fetch configuration
   const { data: config } = await supabase.from("spotify_config").select("*").single()
 
-  const payingMembers = config?.paying_members || config?.number_of_members || 1
-  const perPersonAmount = config ? (config.total_cost / payingMembers).toFixed(2) : "0.00"
+  const perPersonAmount = config ? (config.total_cost / config.number_of_members).toFixed(2) : "0.00"
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-green-50">

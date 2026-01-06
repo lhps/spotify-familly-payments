@@ -7,7 +7,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
-import { Textarea } from "@/components/ui/textarea"
 import { Upload, Copy, CheckCircle, QrCode } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
@@ -15,9 +14,8 @@ import { useRouter } from "next/navigation"
 interface PaymentFormProps {
   config: {
     pix_key: string
-    pix_type: string
-    account_holder: string
-    total_monthly_cost: number
+    pix_holder_name: string
+    total_cost: number
     number_of_members: number
     paying_members?: number
   } | null
@@ -26,7 +24,6 @@ interface PaymentFormProps {
 
 export function PaymentForm({ config, perPersonAmount }: PaymentFormProps) {
   const [name, setName] = useState("")
-  const [notes, setNotes] = useState("")
   const [file, setFile] = useState<File | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [copied, setCopied] = useState(false)
@@ -86,7 +83,6 @@ export function PaymentForm({ config, perPersonAmount }: PaymentFormProps) {
         amount: Number.parseFloat(perPersonAmount),
         receipt_url: receiptUrl,
         status: receiptUrl ? "paid" : "pending",
-        notes: notes || null,
         payment_month: currentMonth,
       }
 
@@ -104,7 +100,6 @@ export function PaymentForm({ config, perPersonAmount }: PaymentFormProps) {
 
       setSuccess(true)
       setName("")
-      setNotes("")
       setFile(null)
 
       // Reset form and refresh after 2 seconds
@@ -155,10 +150,6 @@ export function PaymentForm({ config, perPersonAmount }: PaymentFormProps) {
               </div>
               <div className="space-y-2">
                 <div>
-                  <p className="text-sm text-gray-600">Tipo de chave</p>
-                  <p className="font-medium text-gray-900 capitalize">{config.pix_type}</p>
-                </div>
-                <div>
                   <p className="text-sm text-gray-600">Chave Pix</p>
                   <div className="flex items-center gap-2">
                     <code className="flex-1 p-2 bg-white rounded border text-sm font-mono">{config.pix_key}</code>
@@ -175,7 +166,7 @@ export function PaymentForm({ config, perPersonAmount }: PaymentFormProps) {
                 </div>
                 <div>
                   <p className="text-sm text-gray-600">Nome do favorecido</p>
-                  <p className="font-medium text-gray-900">{config.account_holder}</p>
+                  <p className="font-medium text-gray-900">{config.pix_holder_name}</p>
                 </div>
                 <div>
                   <p className="text-sm text-gray-600">Valor</p>
@@ -210,17 +201,6 @@ export function PaymentForm({ config, perPersonAmount }: PaymentFormProps) {
                   {file && <CheckCircle className="w-5 h-5 text-green-500 shrink-0" />}
                 </div>
                 <p className="text-xs text-gray-500">Envie uma foto ou PDF do comprovante de pagamento</p>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="notes">Observações (opcional)</Label>
-                <Textarea
-                  id="notes"
-                  placeholder="Alguma observação sobre o pagamento?"
-                  value={notes}
-                  onChange={(e) => setNotes(e.target.value)}
-                  rows={3}
-                />
               </div>
 
               <Button type="submit" className="w-full bg-green-600 hover:bg-green-700" disabled={isSubmitting}>
