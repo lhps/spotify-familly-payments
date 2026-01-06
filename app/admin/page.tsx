@@ -31,20 +31,40 @@ export default function AdminPage() {
   }, [router])
 
   const loadData = async () => {
+    console.log("[v0] Loading admin data...")
     const supabase = createClient()
 
-    // Fetch configuration
-    const { data: configData } = await supabase.from("spotify_config").select("*").single()
-    setConfig(configData)
+    try {
+      // Fetch configuration
+      console.log("[v0] Fetching configuration...")
+      const { data: configData, error: configError } = await supabase.from("spotify_config").select("*").single()
 
-    // Fetch payments
-    const { data: paymentsData } = await supabase
-      .from("payments")
-      .select("*")
-      .order("created_at", { ascending: false })
-      .limit(50)
-    setPayments(paymentsData || [])
-    setIsLoading(false)
+      if (configError) {
+        console.error("[v0] Config error:", configError)
+      } else {
+        console.log("[v0] Config loaded:", configData)
+        setConfig(configData)
+      }
+
+      // Fetch payments
+      console.log("[v0] Fetching payments...")
+      const { data: paymentsData, error: paymentsError } = await supabase
+        .from("payments")
+        .select("*")
+        .order("created_at", { ascending: false })
+        .limit(50)
+
+      if (paymentsError) {
+        console.error("[v0] Payments error:", paymentsError)
+      } else {
+        console.log("[v0] Payments loaded:", paymentsData?.length, "payments")
+        setPayments(paymentsData || [])
+      }
+    } catch (error) {
+      console.error("[v0] Error loading data:", error)
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   if (!isAuthenticated || isLoading) {

@@ -13,7 +13,7 @@ interface Payment {
   receipt_url: string | null
   status: string
   notes: string | null
-  payment_month: string
+  payment_month?: string
 }
 
 interface CurrentMonthPaymentsProps {
@@ -25,8 +25,24 @@ interface CurrentMonthPaymentsProps {
 export function CurrentMonthPayments({ payments, config, onUpdate }: CurrentMonthPaymentsProps) {
   const [loading, setLoading] = useState<string | null>(null)
 
+  console.log("[v0] CurrentMonthPayments - payments:", payments?.length, "config:", config)
+
   const currentMonth = new Date().toISOString().slice(0, 7) // YYYY-MM format
-  const currentMonthPayments = payments.filter((p) => p.payment_month === currentMonth)
+  console.log("[v0] Current month:", currentMonth)
+
+  const currentMonthPayments = payments.filter((p) => {
+    // If payment_month exists, use it; otherwise, check created_at
+    if (p.payment_month) {
+      return p.payment_month === currentMonth
+    }
+    // Fallback: check if payment was created this month
+    if (p.payment_date) {
+      return p.payment_date.startsWith(currentMonth)
+    }
+    return false
+  })
+
+  console.log("[v0] Current month payments:", currentMonthPayments?.length)
 
   const totalPaid = currentMonthPayments
     .filter((p) => p.status === "paid" || p.status === "confirmed")
