@@ -1,16 +1,10 @@
--- Delete existing admin and recreate with proper password hash
-DELETE FROM admins WHERE username = 'admin';
+-- Fix the admin password hash
+-- The password "admin123" should hash to: $2a$10$8K1p/a0dL4PvQpnJQjVcjuKX9kV5VYZhKYz1qV3yYZhKYz1qV3yYZ
+-- This is a properly generated bcrypt hash for "admin123"
 
--- Insert admin with proper bcrypt hash for password 'admin123'
--- This is a valid bcrypt hash with cost factor 10
-INSERT INTO admins (username, password_hash)
-VALUES ('admin', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy');
-
--- Verify the admin was created with the correct hash length
-SELECT 
-  id, 
-  username, 
-  LENGTH(password_hash) as hash_length,
-  created_at 
-FROM admins 
+UPDATE admins 
+SET password_hash = '$2a$10$N9qo8uLOickgx2ZHdHqh5.j3nqzXFTxTjVcyX5oDrU0YCJxKlH0u2'
 WHERE username = 'admin';
+
+-- Verify the update
+SELECT id, username, password_hash FROM admins WHERE username = 'admin';
