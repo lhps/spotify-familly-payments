@@ -1,6 +1,9 @@
 -- Complete database setup script
 -- Run this to set up all tables and data from scratch
 
+-- Enable pgcrypto extension for password hashing
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+
 -- Drop existing tables if they exist
 DROP TABLE IF EXISTS payments CASCADE;
 DROP TABLE IF EXISTS family_members CASCADE;
@@ -70,11 +73,11 @@ CREATE POLICY "Allow public read on admins" ON admins FOR SELECT USING (true);
 CREATE POLICY "Allow public insert on admins" ON admins FOR INSERT WITH CHECK (true);
 CREATE POLICY "Allow public update on admins" ON admins FOR UPDATE USING (true);
 
+-- Using PostgreSQL's native crypt() function to hash password
 -- Insert default admin user (username: admin, password: admin123)
--- The hash below is bcrypt hash of "admin123"
 INSERT INTO admins (username, password_hash)
-VALUES ('admin', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy')
-ON CONFLICT (username) DO UPDATE SET password_hash = EXCLUDED.password_hash;
+VALUES ('admin', crypt('admin123', gen_salt('bf')))
+ON CONFLICT (username) DO UPDATE SET password_hash = crypt('admin123', gen_salt('bf'));
 
 -- Insert default config
 INSERT INTO spotify_config (pix_key, pix_holder_name, total_cost, number_of_members, paying_members, due_date)
