@@ -9,10 +9,9 @@ interface Payment {
   id: string
   member_name: string
   amount: number
-  payment_date: string
+  created_at: string
   receipt_url: string | null
   status: string
-  notes: string | null
   payment_month?: string
 }
 
@@ -25,28 +24,21 @@ interface CurrentMonthPaymentsProps {
 export function CurrentMonthPayments({ payments, config, onUpdate }: CurrentMonthPaymentsProps) {
   const [loading, setLoading] = useState<string | null>(null)
 
-  console.log("[v0] CurrentMonthPayments - payments:", payments?.length, "config:", config)
-
   const currentMonth = new Date().toISOString().slice(0, 7) // YYYY-MM format
-  console.log("[v0] Current month:", currentMonth)
 
   const currentMonthPayments = payments.filter((p) => {
-    // If payment_month exists, use it; otherwise, check created_at
     if (p.payment_month) {
       return p.payment_month === currentMonth
     }
-    // Fallback: check if payment was created this month
-    if (p.payment_date) {
-      return p.payment_date.startsWith(currentMonth)
+    if (p.created_at) {
+      return p.created_at.startsWith(currentMonth)
     }
     return false
   })
 
-  console.log("[v0] Current month payments:", currentMonthPayments?.length)
-
   const totalPaid = currentMonthPayments
     .filter((p) => p.status === "paid" || p.status === "confirmed")
-    .reduce((sum, p) => sum + p.amount, 0)
+    .reduce((sum, p) => sum + Number(p.amount), 0)
 
   const totalPlan = config?.total_cost || 0
   const remaining = totalPlan - totalPaid
@@ -161,8 +153,8 @@ export function CurrentMonthPayments({ payments, config, onUpdate }: CurrentMont
               >
                 <div className="flex-1">
                   <p className="font-semibold text-gray-900">{payment.member_name}</p>
-                  <p className="text-sm text-gray-600">{formatDate(payment.payment_date)}</p>
-                  <p className="text-lg font-bold text-green-700 mt-1">R$ {payment.amount.toFixed(2)}</p>
+                  <p className="text-sm text-gray-600">{formatDate(payment.created_at)}</p>
+                  <p className="text-lg font-bold text-green-700 mt-1">R$ {Number(payment.amount).toFixed(2)}</p>
                 </div>
                 <div className="flex items-center gap-2">
                   {payment.receipt_url && (
@@ -200,8 +192,8 @@ export function CurrentMonthPayments({ payments, config, onUpdate }: CurrentMont
               >
                 <div className="flex-1">
                   <p className="font-semibold text-gray-900">{payment.member_name}</p>
-                  <p className="text-sm text-gray-600">{formatDate(payment.payment_date)}</p>
-                  <p className="text-lg font-bold text-orange-700 mt-1">R$ {payment.amount.toFixed(2)}</p>
+                  <p className="text-sm text-gray-600">{formatDate(payment.created_at)}</p>
+                  <p className="text-lg font-bold text-orange-700 mt-1">R$ {Number(payment.amount).toFixed(2)}</p>
                 </div>
                 <div className="flex items-center gap-2">
                   {payment.receipt_url && (
