@@ -21,6 +21,8 @@ export default function AdminLoginPage() {
     setIsLoading(true)
     setError("")
 
+    console.log("[v0] Login form submitted")
+
     try {
       const response = await fetch("/api/admin/login", {
         method: "POST",
@@ -29,15 +31,16 @@ export default function AdminLoginPage() {
       })
 
       const data = await response.json()
+      console.log("[v0] Login response:", { ok: response.ok, data })
 
       if (!response.ok) {
         throw new Error(data.error || "Login failed")
       }
 
       if (data.sessionToken) {
+        console.log("[v0] Storing session token and redirecting")
         sessionStorage.setItem("admin_session", data.sessionToken)
-        router.push("/admin")
-        router.refresh()
+        window.location.href = "/admin"
       }
     } catch (err) {
       console.error("Login error:", err)
